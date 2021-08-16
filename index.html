@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <style media="screen">
+    * {
+      margin: 0px;
+      padding: 0px;
+      box-sizing: border-box;
+    }
+    h1{
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      font-size: 80px;
+      color: white;
+      /* font-family: 'Atkinson Hyperlegible', sans-serif; */
+    }
+
+
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible&display=swap" rel="stylesheet"> 
+  </head>
+  <body>
+    <h1>
+      Uranium 235
+    </h1>
+
+    <canvas id="canvas" width="300" height="300"></canvas>
+
+    <script>
+    // Creating and setting up canvas and the context
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let colorsRedish = [
+      '#CE2029',
+      '#FFFCAF',
+      '#FFE17C',
+      '#FF664B',
+      '#903843',
+    ]
+    let colorsBluish = [
+      '#EE0090',
+      '#E400F1',
+      '#FDFED2',
+      '#0000EA',
+      '#01BDE8'
+    ]
+    let colorsRandom = [
+      '#A2DE67',
+      '#29A3FB',
+      '#FEAAAB',
+      '#8D70FA',
+      '#FAD554',
+      '#FFA115',
+    ]
+    let colorsBeachy = [
+      '#2E9598',
+      '#F7DB69',
+      '#F26A44',
+      '#EC1B4B',
+      '#A8216B'
+    ]
+    let colors = [
+       [colorsRedish],
+       [colorsBluish],
+       [colorsRandom],
+       [colorsBeachy],
+    ]
+
+    let mouse  =  {
+      x: undefined,
+      y: undefined,
+    }
+
+    let randomNumberFromSpecificRange = (num1, num2) => {
+      return (Math.floor(Math.random() * (num2 - num1)+ num1))
+
+    };
+
+    class Particle {
+      constructor(xPos, yPos, colorGroup) {
+        this.x = xPos;
+        this.y = yPos;
+        this.deltaX = (Math.random() - 0.5) * 12;
+        this.deltaY = (Math.random() - 0.5) * 10;
+        this.radius = randomNumberFromSpecificRange(5, 8);
+        this.gravity = 0.01;
+        this.delete = false;
+        this.decreaseInRadius = 0.01;
+        this.colorGroup = colorGroup;
+        this.color = this.colorGroup[Math.floor(Math.random() * this.colorGroup.length)]
+
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.closePath();
+      }
+      update(){
+        // Makes the overall path more circluar
+        if(Math.abs(this.deltaX) > 5 && Math.abs(this.deltaY) > 5 ) {
+          this.deltaX *= 0.6;
+          this.deltaY *= 0.6;
+
+        }
+        if (this.radius < this.decreaseInRadius * 1.1) {
+          this.delete = true;
+          this.decreaseInRadius = 0;
+        }
+        this.radius -= this.decreaseInRadius;
+        this.x += this.deltaX;
+        this.y += this.deltaY;
+        this.deltaY += this.gravity;
+        this.draw()
+      }
+    }
+
+    let particles = [];
+
+    window.addEventListener('click', (event)=> {
+      let colorGroup = colors[Math.floor(Math.random() * colors.length)][0]
+      mouse.x = event.x;
+      mouse.y = event.y;
+      for(let i = 0; i < 300; i++) {
+        particles.push(new Particle(mouse.x, mouse.y, colorGroup))
+      }
+    })
+
+
+    function Animate() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      if (particles.length >= 1) {
+
+        particles.forEach((particle)=> {
+          particle.update()
+          })
+        for (let i = 0; i < particles.length; i++) {
+          if (particles[i].delete) {
+            particles.splice(i, 1)
+          }
+        }
+      }
+      requestAnimationFrame(Animate)
+    }
+    Animate();
+    </script>
+  </body>
+</html>
